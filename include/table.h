@@ -9,7 +9,8 @@
 #include <stdint.h>
 
 // Define Row first, as it is used in these definitions.
-typedef struct {
+typedef struct
+{
     uint32_t id;
     char username[COLUMN_USERNAME_SIZE];
     char email[COLUMN_EMAIL_SIZE];

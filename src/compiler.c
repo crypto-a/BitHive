@@ -26,23 +26,31 @@ MetaCommandResult doMetaCommand(InputBuffer* input_buffer)
 
 PrepareResult prepareStatement(InputBuffer* input_buffer, Statement* statement)
 {
-    // Check if the first word is "insert"
-    if (strncmp(input_buffer->buffer, "insert", 6) == 0)
-    {
+    if (strncmp(input_buffer->buffer, "insert", 6) == 0) {
         statement->type = STATEMENT_INSERT;
+        // Expecting the input to be of the form: insert <id> <username> <email>
+        int args_assigned = sscanf(
+                input_buffer->buffer,
+                "insert %d %s %s",
+                &(statement->row_to_insert.id),
+                statement->row_to_insert.username,
+                statement->row_to_insert.email
+        );
+        if (args_assigned < 3) {
+            // Handle syntax error (you may want to define and return a new error code)
+            return PREPARE_UNRECOGNIZED_STATEMENT;
+        }
         return PREPARE_SUCCESS;
     }
 
-    // Check if the first word is "select"
-    if (strcmp(input_buffer->buffer, "select") == 0)
-    {
+    if (strcmp(input_buffer->buffer, "select") == 0) {
         statement->type = STATEMENT_SELECT;
         return PREPARE_SUCCESS;
     }
 
-    // Return unrecognized statement
     return PREPARE_UNRECOGNIZED_STATEMENT;
 }
+
 
 ExecuteResult executeInsert(Statement* statement, Table* table)
 {
