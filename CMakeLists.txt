@@ -8,5 +8,6 @@ add_executable(
         src/main.c
         src/buffer.c
         src/compiler.c
+        src/table.c
 )
 

@@ -5,6 +5,7 @@
 
 #include "../include/buffer.h"
 #include "../include/compiler.h"
+#include "../include/table.h"
 
 
 
@@ -12,6 +13,7 @@
 
 int main(int argc, char* argv[])
 {
+    Table* table = newTable();
     InputBuffer* input_buffer = newInputBuffer();
     while (true)
     {
@@ -40,8 +42,16 @@ int main(int argc, char* argv[])
                 continue;
         }
 
-        executeStatement(&statement);
-        printf("Executed.\n");
+        switch (executeStatement(&statement, table))
+        {
+            case EXECUTE_SUCCESS:
+                printf("Executed.\n");
+                break;
+            case EXECUTE_TABLE_FULL:
+                printf("Error: Table full.\n");
+                break;
+
+        }
 
     }
 }

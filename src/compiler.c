@@ -7,6 +7,7 @@
 #include <printf.h>
 #include "../include/buffer.h"
 #include "../include/compiler.h"
+#include "../include/table.h"
 
 
 
@@ -43,16 +44,44 @@ PrepareResult prepareStatement(InputBuffer* input_buffer, Statement* statement)
     return PREPARE_UNRECOGNIZED_STATEMENT;
 }
 
+ExecuteResult executeInsert(Statement* statement, Table* table)
+{
+    if (table->numRows >= TABLE_MAX_ROWS)
+    {
+        printf("Table is full.\n");
+        return EXECUTE_TABLE_FULL;
+    }
+    Row* row_to_insert = &(statement->row_to_insert);
 
-void executeStatement(Statement* statement)
+    serializeRow(row_to_insert, rowSlot(table, table->numRows));
+    table->numRows += 1;
+
+    return EXECUTE_SUCCESS;
+}
+
+ExecuteResult executeSelect(Statement* statement, Table* table)
+{
+    Row row;
+    for (uint32_t i = 0; i < table->numRows; i++)
+    {
+        deserializeRow(rowSlot(table, i), &row);
+        printRow(&row);
+    }
+    return EXECUTE_SUCCESS;
+}
+
+
+ExecuteResult executeStatement(Statement *statement, Table *table)
 {
     switch (statement->type)
     {
         case (STATEMENT_INSERT):
-            printf("This is where we would do an insert.\n");
-            break;
+        {
+            return executeInsert(statement, table);
+        }
         case (STATEMENT_SELECT):
-            printf("This is where we would do a select.\n");
-            break;
+        {
+            return executeSelect(statement, table);
+        }
     }
 }
